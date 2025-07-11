@@ -24,3 +24,12 @@ output "read_replica_arn" {
   description = "ARN of the RDS read replica"
   value       = module.rds_dr.read_replica_arn
 }
+
+output "secret_arn" {
+  value = module.ecs_dr.secret_arn
+}
+
+output "read_replica_identifier" {
+  value = module.rds_dr.read_replica_identifier
+}
+

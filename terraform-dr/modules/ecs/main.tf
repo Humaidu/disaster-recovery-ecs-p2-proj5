@@ -22,6 +22,7 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
+
 # ECS Cluster
 resource "aws_ecs_cluster" "this" {
   name = var.cluster_name
@@ -47,6 +48,49 @@ resource "aws_iam_role" "ecs_task_execution" {
 resource "aws_iam_role_policy_attachment" "ecs_execution" {
   role       = aws_iam_role.ecs_task_execution.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_iam_policy" "ecs_secrets_access" {
+  name        = "ecs-secrets-access-policy-dr"
+  description = "Allow ECS DR task to read DB credentials secret"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ],
+        # Resource = var.secret_arn
+        # Resource = [
+        #   "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-endpoint",
+        #   "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-username",
+        #   "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-password",
+        #   "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-dbname"
+        # ]
+        Resource = [
+          "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-endpoint-pcBaRR",
+          "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-username-BIeGTd",
+          "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-password-yO18l1",
+          "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-dbname-miKMTX"
+          
+        ]
+      }
+    ]
+  })
+}
+
+# Attach ecs_secrets_access Policy
+resource "aws_iam_role_policy_attachment" "ecs_secrets_policy_attachment" {
+  role       = aws_iam_role.ecs_task_execution.name
+  policy_arn = aws_iam_policy.ecs_secrets_access.arn
+}
+
+# Create Log Group via Terraform
+resource "aws_cloudwatch_log_group" "ecs_log_group" {
+  name              = "/ecs/${var.cluster_name}"
+  retention_in_days = 7
+  region            = var.region
 }
 
 
@@ -77,10 +121,22 @@ resource "aws_ecs_task_definition" "this" {
         }
       },
       secrets = [
-        { name = "DB_ENDPOINT", valueFrom = var.secret_arn },
-        { name = "DB_USERNAME", valueFrom = var.secret_arn },
-        { name = "DB_PASSWORD", valueFrom = var.secret_arn },
-        { name = "DB_NAME",     valueFrom = var.secret_arn }
+        {
+          name      = "DB_ENDPOINT"
+          valueFrom = "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-endpoint-pcBaRR"
+        },
+        {
+          name      = "DB_USERNAME"
+          valueFrom = "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-username-BIeGTd"
+        },
+        {
+          name      = "DB_PASSWORD"
+          valueFrom = "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-password-yO18l1"
+        },
+        {
+          name      = "DB_NAME"
+          valueFrom = "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-dbname-miKMTX"
+        }
       ]
     }
   ])
@@ -102,6 +158,7 @@ resource "aws_ecs_service" "this" {
 
   depends_on = [aws_ecs_task_definition.this]
 }
+
 
 
 

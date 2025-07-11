@@ -49,6 +49,7 @@ module "ecs_dr" {
 
 }
 
+
 # RDS Read Replica in DR region
 module "rds_dr" {
   source                = "./modules/rds"

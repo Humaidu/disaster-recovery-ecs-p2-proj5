@@ -9,7 +9,7 @@ DR_REGION="eu-central-1"
 LOGFILE="failback.log"
 
 # DR promoted DB
-DR_DB_IDENTIFIER=$(terraform output -raw read_replica_id)
+DR_DB_IDENTIFIER=$(terraform output -raw read_replica_identifier)
 NEW_REPLICA_ID="lamp-postfailback-replica"
 
 # Secrets
@@ -23,7 +23,7 @@ TASK_FAMILY=$(echo "$TASK_DEF_ARN" | cut -d '/' -f 2 | cut -d ':' -f 1)
 
 echo "Starting DR failback at $(date)" > "$LOGFILE"
 
-# === 1. Get Endpoint of DR DB ===
+# Get Endpoint of DR DB 
 echo "Fetching endpoint of promoted DR DB..." | tee -a "$LOGFILE"
 
 PROMOTED_ENDPOINT=$(aws rds describe-db-instances \
@@ -32,7 +32,7 @@ PROMOTED_ENDPOINT=$(aws rds describe-db-instances \
   --query "DBInstances[0].Endpoint.Address" \
   --output text)
 
-# === 2. Create New Read Replica in Primary Region ===
+# Create New Read Replica in Primary Region 
 
 echo "Creating read replica in source region..." | tee -a "$LOGFILE"
 
@@ -46,7 +46,7 @@ aws rds create-db-instance-read-replica \
 echo "Waiting 2 minutes for replica creation..." | tee -a "$LOGFILE"
 sleep 120
 
-# === 3. Update Secret in Primary Region ===
+# Update Secret in Primary Region 
 
 echo "Fetching existing secret values..." | tee -a "$LOGFILE"
 SECRET_STRING=$(aws secretsmanager get-secret-value \
@@ -84,7 +84,7 @@ aws secretsmanager update-secret \
   --region "$SOURCE_REGION" \
   --secret-string "$UPDATED_SECRET" >> "$LOGFILE"
 
-# === 4. Register Updated Task Definition in Primary ===
+# Register Updated Task Definition in Primary 
 
 echo "Registering new ECS task definition in $SOURCE_REGION..." | tee -a "$LOGFILE"
 
@@ -103,7 +103,7 @@ NEW_TASK_DEF_ARN=$(aws ecs register-task-definition \
 
 echo "New Task Definition ARN: $NEW_TASK_DEF_ARN" | tee -a "$LOGFILE"
 
-# === 5. Update ECS Service in Primary Region ===
+# Update ECS Service in Primary Region
 
 echo "Updating ECS service in $SOURCE_REGION..." | tee -a "$LOGFILE"
 

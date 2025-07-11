@@ -31,7 +31,7 @@ variable "container_image" {
 
 variable "secret_arn" {
   description = "The ARN of the AWS Secrets Manager secret storing the DB credentials."
-  default     = "arn:aws:secretsmanager:eu-west-1:149536482038:secret:lamp-db-credentials-YjJ3m7"
+  default     = "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-yGOMu7"
 
 }
 

@@ -20,3 +20,6 @@ override.tf.json
 *_override.tf.json
 
 .DS_Store
+
+failover.log
+reset_dr.log
