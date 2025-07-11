@@ -59,11 +59,11 @@ module "rds_dr" {
   }
 
   replica_identifier    = var.replica_identifier
-  source_db_arn  = var.source_db_arn
+  source_db_arn         = var.source_db_arn
   instance_class        = var.db_instance_class
-  private_subnets      = module.vpc.private_subnets
-  vpc_id               = module.vpc.vpc_id
-  ecs_sg_id            = module.ecs_dr.ecs_sg_id
+  private_subnets       = module.vpc.private_subnets
+  vpc_id                = module.vpc.vpc_id
+  ecs_sg_id             = module.ecs_dr.ecs_sg_id
   primary_kms_key_arn   = "arn:aws:kms:eu-west-1:149536482038:key/mrk-8bb92a8f9cb44411a1506bf4b3eac26e"
 
 }

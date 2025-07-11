@@ -43,7 +43,7 @@ variable "replica_identifier" {
 
 variable "source_db_arn" {
   description = "The identifier of the source RDS instance to replicate from."
-  default = "arn:aws:rds:eu-west-1:149536482038:db:lampdb-ecs-dr"
+  default = "arn:aws:rds:eu-west-1:149536482038:db:lampdb-ecs"
 }
 
 variable "db_instance_class" {

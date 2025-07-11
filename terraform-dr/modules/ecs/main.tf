@@ -50,6 +50,7 @@ resource "aws_iam_role_policy_attachment" "ecs_execution" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+# IAM Policy to access Secret Manager 
 resource "aws_iam_policy" "ecs_secrets_access" {
   name        = "ecs-secrets-access-policy-dr"
   description = "Allow ECS DR task to read DB credentials secret"
@@ -61,13 +62,6 @@ resource "aws_iam_policy" "ecs_secrets_access" {
         Action = [
           "secretsmanager:GetSecretValue"
         ],
-        # Resource = var.secret_arn
-        # Resource = [
-        #   "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-endpoint",
-        #   "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-username",
-        #   "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-password",
-        #   "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-dbname"
-        # ]
         Resource = [
           "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-endpoint-pcBaRR",
           "arn:aws:secretsmanager:eu-central-1:149536482038:secret:lamp-db-credentials-username-BIeGTd",

@@ -42,7 +42,7 @@ resource "aws_db_instance" "replica" {
   replicate_source_db     = var.source_db_arn
   instance_class          = var.instance_class
   db_subnet_group_name    = aws_db_subnet_group.dr.name
-  vpc_security_group_ids  = [var.ecs_sg_id]
+  vpc_security_group_ids  = [aws_security_group.rds_sg.id]
   multi_az                = false
   publicly_accessible     = true
   storage_encrypted       = true
