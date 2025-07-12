@@ -33,3 +33,9 @@ output "read_replica_identifier" {
   value = module.rds_dr.read_replica_identifier
 }
 
+output "dr_alb_dns_name" {
+  description = "DNS name for the ALB in the DR region"
+  value       = module.alb_dr.alb_dns_name
+}
+
+

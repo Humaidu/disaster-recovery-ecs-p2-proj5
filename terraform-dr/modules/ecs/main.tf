@@ -10,7 +10,7 @@ resource "aws_security_group" "ecs_sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [var.alb_sg_id]
   }
 
   # Allow all outbound
@@ -142,15 +142,30 @@ resource "aws_ecs_service" "this" {
   cluster         = aws_ecs_cluster.this.id
   task_definition = aws_ecs_task_definition.this.arn
   launch_type     = "FARGATE"
+  # Pilot light: No running tasks until DR activated
   desired_count   = 0
+  
 
-  network_configuration {
-    subnets         = var.public_subnets
-    security_groups = [aws_security_group.ecs_sg.id]
-    assign_public_ip = true
+  # Associate service with ALB
+  load_balancer {
+    target_group_arn = var.target_group_arn
+    container_name   = var.container_name       
+    container_port   = 80                       
   }
 
-  depends_on = [aws_ecs_task_definition.this]
+  network_configuration {
+    subnets         = var.private_subnets
+    security_groups = [aws_security_group.ecs_sg.id]
+    assign_public_ip = false
+  }
+
+  deployment_controller {
+    type = "ECS"
+  }
+
+  depends_on = [
+    aws_ecs_task_definition.this,
+  ]
 }
 
 

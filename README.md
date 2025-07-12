@@ -23,12 +23,20 @@ This project implements a fully automated, cost-optimized Disaster Recovery arch
 ## Project Structure
 
 ```
+
 ├── README.md
 ├── failback.sh
 ├── failover.sh
+├── reset_dr.sh
 └── terraform-dr
+    ├── failover.log
     ├── main.tf
     ├── modules
+    │   ├── alb
+    │   │   ├── main.tf
+    │   │   ├── outputs.tf
+    │   │   ├── terraform.tf
+    │   │   └── variables.tf
     │   ├── ecs
     │   │   ├── main.tf
     │   │   ├── outputs.tf
@@ -40,6 +48,7 @@ This project implements a fully automated, cost-optimized Disaster Recovery arch
     │       ├── terraform.tf
     │       └── variables.tf
     ├── outputs.tf
+    ├── terraform.tfstate
     └── variables.tf
 ```
 
@@ -179,3 +188,40 @@ Include a workflow that:
 - CloudWatch & Secrets Manager integrations built-in
 
 ---
+
+## Network & Security Configuration (Disaster Recovery - DR Region)
+
+This project deploys the ECS tasks, ALB, and RDS read replica in a **secure private network** with strict access controls.
+
+### Security Groups Setup
+
+| Component     | Allowed Inbound Traffic      | Purpose                                           |
+|---------------|------------------------------|---------------------------------------------------|
+| **ALB SG**    | Port 80 from `0.0.0.0/0`      | Allow public HTTP traffic to Load Balancer       |
+| **ECS Task SG** | Port 80 from ALB SG         | Only accept traffic routed through the ALB       |
+| **RDS SG**    | Port 3306 from ECS SG         | Allow MySQL access from ECS only                 |
+
+### Outputs
+
+- ALB DNS name can be found via Terraform output: `terraform output alb_dns_name`
+
+### Architecture Flow
+
+```
+User --> ALB (public) --> ECS Task (private) --> RDS Read Replica (private)
+```
+
+## Terraform Highlights
+
+- **ALB is public**, ECS and RDS are in **private subnets**
+- **NAT Gateway** (via VPC module) allows ECS to pull container images and access Secrets Manager
+- All resources are deployed in the DR region (`eu-central-1`) with minimal permissions following least-privilege principles
+
+## Modules
+
+- `modules/vpc` - Sets up VPC, subnets, NAT Gateway, route tables
+- `modules/alb` - Provisions ALB and target group for ECS
+- `modules/ecs` - ECS Fargate service, task definitions, IAM, log groups
+- `modules/rds` - RDS MySQL read replica, subnet group, SG, CloudWatch alarm
+
+

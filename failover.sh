@@ -136,4 +136,4 @@ aws ecs update-service \
   --desired-count 1 \
   --region "$REGION" >> "$LOGFILE"
 
-echo "✅ DR failover complete! ECS service scaled and using promoted DB." | tee -a "$LOGFILE"
+echo "DR failover complete! ECS service scaled and using promoted DB." | tee -a "$LOGFILE"

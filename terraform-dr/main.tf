@@ -27,7 +27,29 @@ module "vpc" {
   enable_dns_hostnames = true
   enable_dns_support   = true
 
+  enable_nat_gateway = true
+  single_nat_gateway = true
+
 }
+
+
+# ALB in DR region
+module "alb_dr" {
+  source         = "./modules/alb"
+
+  providers = {
+    aws = aws.dr
+  }
+
+  name           = "lamp-alb-dr"
+  vpc_id         = module.vpc.vpc_id
+  public_subnets = module.vpc.public_subnets
+  tags = {
+    Environment = "dr"
+    Project     = "lamp"
+  }
+}
+
 
 # ECS Disaster Recovery Cluster + Service
 module "ecs_dr" {
@@ -44,8 +66,12 @@ module "ecs_dr" {
   container_image   = var.container_image
   secret_arn        = var.secret_arn
   region            = var.region
-  public_subnets   = module.vpc.public_subnets
-  vpc_id           = module.vpc.vpc_id
+  private_subnets   = module.vpc.private_subnets
+  public_subnets    = module.vpc.public_subnets
+  vpc_id            = module.vpc.vpc_id
+  target_group_arn  = module.alb_dr.target_group_arn
+  alb_sg_id         = module.alb_dr.alb_sg_id
+
 
 }
 
@@ -67,4 +93,5 @@ module "rds_dr" {
   primary_kms_key_arn   = "arn:aws:kms:eu-west-1:149536482038:key/mrk-8bb92a8f9cb44411a1506bf4b3eac26e"
 
 }
+
 

@@ -44,7 +44,7 @@ resource "aws_db_instance" "replica" {
   db_subnet_group_name    = aws_db_subnet_group.dr.name
   vpc_security_group_ids  = [aws_security_group.rds_sg.id]
   multi_az                = false
-  publicly_accessible     = true
+  publicly_accessible     = false
   storage_encrypted       = true
   skip_final_snapshot     = true
 

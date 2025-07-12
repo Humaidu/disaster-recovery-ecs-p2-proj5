@@ -35,3 +35,17 @@ variable "public_subnets" {
   type        = list(string)
 }
 
+variable "private_subnets" {
+  description = "List of subnet IDs for ECS task networking."
+  type        = list(string)
+}
+
+variable "target_group_arn" {
+  description = "Target group ARN for the ECS service to attach to"
+  type        = string
+}
+
+variable "alb_sg_id" {
+  description = "The security group ID of the ECS service to allow DB traffic"
+  type        = string
+}
