@@ -54,6 +54,12 @@ This project implements a fully automated, cost-optimized Disaster Recovery arch
 
 ---
 
+## Architecture
+
+![DR Architecture](screenshots/dr-proj-archi.png)
+
+---
+
 ## Deployment Instructions
 
 ### 1. Clone & Configure
