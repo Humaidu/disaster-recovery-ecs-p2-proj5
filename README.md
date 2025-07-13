@@ -110,7 +110,7 @@ This will:
 
 ---
 
-# Notes
+## Notes
 
 - This is designed for pilot-light DR strategy.
 - Task count in DR remains 0 until failover.
@@ -224,4 +224,18 @@ User --> ALB (public) --> ECS Task (private) --> RDS Read Replica (private)
 - `modules/ecs` - ECS Fargate service, task definitions, IAM, log groups
 - `modules/rds` - RDS MySQL read replica, subnet group, SG, CloudWatch alarm
 
+---
 
+## Proof Of Concept
+
+This is my ECS App in the DR Region after running the failover script
+
+![ECS App](screenshots/prof-of-concept-lamp-app-dr.png)
+
+---
+## Take Note
+
+Because of Cost Management, At the moment:
+- ECS services scaled to 0
+- RDS Replica in DR not promoted
+- Run failover script to scale ECS task to desired count and promote RDS to access the ECS App through the load balancer
